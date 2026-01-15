@@ -16,6 +16,18 @@ This file provides instructions for AI coding agents working on the gotit.games 
 
 ---
 
+## Development Environment
+
+**Always manage dev processes.** When working on this project:
+1. Start Convex dev server: `bun convex dev` (background)
+2. Start Vite dev server: `bun dev` (background)
+3. Keep both running throughout the session
+4. Restart if needed after config changes
+
+The dev site is available at http://localhost:5173
+
+---
+
 ## Permissions
 
 ### Allowed Without Asking
