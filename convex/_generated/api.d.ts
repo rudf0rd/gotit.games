@@ -10,7 +10,9 @@
 
 import type * as catalog from "../catalog.js";
 import type * as games from "../games.js";
+import type * as igdb from "../igdb.js";
 import type * as rawg from "../rawg.js";
+import type * as seed from "../seed.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as sync_gamepass from "../sync/gamepass.js";
 
@@ -23,7 +25,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   catalog: typeof catalog;
   games: typeof games;
+  igdb: typeof igdb;
   rawg: typeof rawg;
+  seed: typeof seed;
   subscriptions: typeof subscriptions;
   "sync/gamepass": typeof sync_gamepass;
 }>;

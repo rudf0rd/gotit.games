@@ -111,7 +111,7 @@ export const getRecentlyAdded = query({
   },
 });
 
-// Internal mutation for use by actions
+// Internal mutation for use by RAWG actions
 export const upsertFromRawgInternal = internalMutation({
   args: {
     rawg_id: v.number(),
@@ -126,6 +126,48 @@ export const upsertFromRawgInternal = internalMutation({
     const existing = await ctx.db
       .query("games")
       .withIndex("by_rawg_id", (q) => q.eq("rawg_id", args.rawg_id))
+      .first();
+
+    const data = {
+      ...args,
+      updated_at: Date.now(),
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, data);
+      return existing._id;
+    }
+
+    return await ctx.db.insert("games", data);
+  },
+});
+
+// Get a game by IGDB ID
+export const getByIgdbId = query({
+  args: { igdb_id: v.number() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("games")
+      .withIndex("by_igdb_id", (q) => q.eq("igdb_id", args.igdb_id))
+      .first();
+  },
+});
+
+// Internal mutation for use by IGDB actions
+export const upsertFromIgdbInternal = internalMutation({
+  args: {
+    igdb_id: v.number(),
+    igdb_slug: v.string(),
+    title: v.string(),
+    cover_url: v.optional(v.string()),
+    release_date: v.optional(v.string()),
+    platforms: v.array(v.string()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("games")
+      .withIndex("by_igdb_id", (q) => q.eq("igdb_id", args.igdb_id))
       .first();
 
     const data = {

@@ -103,84 +103,67 @@ async function syncCatalog(
   }
 }
 
-// Fallback: Use known games list for development
+// Fallback: Use known games list for development (using IGDB)
 async function syncFromAlternativeSource(
   ctx: ActionCtx,
   subscriptionId: Id<"subscriptions">
 ) {
-  console.log("Using development seed data for Game Pass...");
+  console.log("Using development seed data for Game Pass via IGDB...");
 
   // Popular Game Pass games for testing
-  // In production, we'd scrape or use a community-maintained list
   const sampleGames = [
-    { title: "Starfield", rawg_slug: "starfield" },
-    { title: "Halo Infinite", rawg_slug: "halo-infinite" },
-    { title: "Forza Horizon 5", rawg_slug: "forza-horizon-5" },
-    { title: "Sea of Thieves", rawg_slug: "sea-of-thieves" },
-    { title: "Minecraft", rawg_slug: "minecraft" },
-    { title: "The Elder Scrolls V: Skyrim", rawg_slug: "the-elder-scrolls-v-skyrim" },
-    { title: "Doom Eternal", rawg_slug: "doom-eternal" },
-    { title: "Psychonauts 2", rawg_slug: "psychonauts-2" },
-    { title: "Ori and the Will of the Wisps", rawg_slug: "ori-and-the-will-of-the-wisps" },
-    { title: "Hollow Knight", rawg_slug: "hollow-knight" },
+    "Starfield",
+    "Halo Infinite",
+    "Forza Horizon 5",
+    "Sea of Thieves",
+    "Minecraft",
+    "The Elder Scrolls V: Skyrim",
+    "Doom Eternal",
+    "Psychonauts 2",
+    "Ori and the Will of the Wisps",
+    "Hollow Knight",
   ];
-
-  const apiKey = process.env.RAWG_API_KEY;
-  if (!apiKey) {
-    console.log("No RAWG_API_KEY - skipping game import");
-    return { status: "skipped", reason: "no_api_key" };
-  }
 
   let synced = 0;
   let errors = 0;
 
-  for (const game of sampleGames) {
+  for (const title of sampleGames) {
     try {
-      // Search RAWG for the game
-      const searchUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${encodeURIComponent(game.title)}&page_size=1`;
-      const searchResponse = await fetch(searchUrl);
+      // Search IGDB and import the game
+      const gameId = await ctx.runAction(api.igdb.searchAndImport, { title });
 
-      if (!searchResponse.ok) {
+      if (!gameId) {
+        console.log(`Game not found: ${title}`);
         errors++;
         continue;
       }
 
-      const searchData = await searchResponse.json();
-      if (searchData.results && searchData.results.length > 0) {
-        const rawgGame = searchData.results[0];
+      // Create catalog entry for PC
+      await ctx.runMutation(api.catalog.upsertEntry, {
+        game_id: gameId,
+        subscription_id: subscriptionId,
+        tier_slug: "standard",
+        platform: "pc",
+        status: "available" as const,
+      });
 
-        // Import the game to our database
-        const gameId = await ctx.runAction(api.rawg.importGame, {
-          rawg_id: rawgGame.id,
-        });
+      // Also add console version
+      await ctx.runMutation(api.catalog.upsertEntry, {
+        game_id: gameId,
+        subscription_id: subscriptionId,
+        tier_slug: "standard",
+        platform: "console",
+        status: "available" as const,
+      });
 
-        // Create catalog entry
-        await ctx.runMutation(api.catalog.upsertEntry, {
-          game_id: gameId,
-          subscription_id: subscriptionId,
-          tier_slug: "standard", // Game Pass Standard includes these
-          platform: "pc",
-          status: "available" as const,
-        });
+      synced++;
+      console.log(`Synced: ${title}`);
 
-        // Also add console version
-        await ctx.runMutation(api.catalog.upsertEntry, {
-          game_id: gameId,
-          subscription_id: subscriptionId,
-          tier_slug: "standard",
-          platform: "console",
-          status: "available" as const,
-        });
-
-        synced++;
-        console.log(`Synced: ${game.title}`);
-
-        // Small delay to avoid rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      }
+      // Small delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 300));
     } catch (e) {
       errors++;
-      console.error(`Error syncing ${game.title}: ${e}`);
+      console.error(`Error syncing ${title}: ${e}`);
     }
   }
 

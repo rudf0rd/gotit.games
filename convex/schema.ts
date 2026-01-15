@@ -2,10 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // Canonical game data from RAWG
+  // Canonical game data (from IGDB or RAWG)
   games: defineTable({
-    rawg_id: v.number(),
-    rawg_slug: v.string(),
+    // IGDB fields (primary)
+    igdb_id: v.optional(v.number()),
+    igdb_slug: v.optional(v.string()),
+    // RAWG fields (legacy/fallback)
+    rawg_id: v.optional(v.number()),
+    rawg_slug: v.optional(v.string()),
+    // Common fields
     title: v.string(),
     cover_url: v.optional(v.string()),
     release_date: v.optional(v.string()),
@@ -13,6 +18,8 @@ export default defineSchema({
     description: v.optional(v.string()),
     updated_at: v.number(),
   })
+    .index("by_igdb_id", ["igdb_id"])
+    .index("by_igdb_slug", ["igdb_slug"])
     .index("by_rawg_id", ["rawg_id"])
     .index("by_rawg_slug", ["rawg_slug"])
     .searchIndex("search_title", {
