@@ -7,6 +7,7 @@ This file provides instructions for AI coding agents working on the gotit.games 
 **gotit.games** is a video game availability tracker that helps users manage their game subscriptions (Game Pass, PlayStation+, etc.) and avoid buying games they already have access to.
 
 ### Tech Stack
+- **Runtime/Package Manager**: Bun
 - **Frontend**: Vite + Svelte 5 + TypeScript
 - **Backend/Database**: Convex (with `convex-svelte`)
 - **Authentication**: Clerk (with `svelte-clerk`)
@@ -19,14 +20,14 @@ This file provides instructions for AI coding agents working on the gotit.games 
 
 ### Allowed Without Asking
 - Read, search, and explore any files in the codebase
-- Run type/svelte checks: `npm run check`
-- Run linting: `npm run lint`
-- Run dev server: `npm run dev`
-- Run Convex dev: `npx convex dev`
+- Run type/svelte checks: `bun check`
+- Run linting: `bun lint`
+- Run dev server: `bun dev`
+- Run Convex dev: `bun convex dev`
 - Create and switch git branches
 - **Commit changes** using conventional commits
 - **Push to remote** on feature branches
-- Install npm packages needed for implementation
+- Install packages with `bun add` as needed for implementation
 
 ### Ask First
 - Push to `main` branch directly
@@ -145,19 +146,23 @@ gotit-games/
 
 ```bash
 # Development
-npm run dev              # Start Vite dev server
-npx convex dev           # Start Convex dev (run in separate terminal)
+bun dev                  # Start Vite dev server
+bun convex dev           # Start Convex dev (run in separate terminal)
 
 # Type checking & linting
-npm run check            # Svelte + TypeScript check
-npm run lint             # ESLint
+bun check                # Svelte + TypeScript check
+bun lint                 # ESLint
 
 # Building
-npm run build            # Production build
+bun run build            # Production build
 
 # Convex
-npx convex deploy        # Deploy to production
-npx convex dashboard     # Open Convex dashboard
+bun convex deploy        # Deploy to production
+bun convex dashboard     # Open Convex dashboard
+
+# Installing packages
+bun add <package>        # Add dependency
+bun add -d <package>     # Add dev dependency
 ```
 
 ---
