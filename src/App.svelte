@@ -1,40 +1,8 @@
 <script lang="ts">
   import ConvexClerkProvider from './lib/components/ConvexClerkProvider.svelte'
   import ConvexAuthBridge from './lib/components/ConvexAuthBridge.svelte'
+  import Pong from './lib/components/Pong.svelte'
   import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk/client'
-
-  // Animated ASCII frames for the controller
-  const frames = [
-    `
-  +---------------------------+
-  |    +---+         (Y)      |
-  |    | ^ |     o   X   A    |
-  | +--+---+--+     (X) (B)   |
-  | |  <   >  |      (A)      |
-  | +--+---+--+  [-] [-]      |
-  |    | v |                  |
-  |    +---+       GOTIT      |
-  +---------------------------+`,
-    `
-  +---------------------------+
-  |    +---+         (Y)      |
-  |    | ^ |     O   X   A    |
-  | +--+---+--+     (X) (B)   |
-  | |  <   >  |      (A)      |
-  | +--+---+--+  [-] [-]      |
-  |    | v |                  |
-  |    +---+       GOTIT      |
-  +---------------------------+`
-  ]
-
-  let frameIndex = $state(0)
-
-  $effect(() => {
-    const interval = setInterval(() => {
-      frameIndex = (frameIndex + 1) % frames.length
-    }, 500)
-    return () => clearInterval(interval)
-  })
 
   // Typing effect for tagline
   const fullText = "NEVER BUY A GAME YOU ALREADY OWN"
@@ -71,7 +39,7 @@
 
       <main>
         <div class="hero">
-          <pre class="ascii-art glow-cyan">{frames[frameIndex]}</pre>
+          <Pong />
 
           <h1 class="title">
             <span class="glow-pink">GOTIT</span><span class="glow-cyan">.GAMES</span>
@@ -169,12 +137,6 @@
     gap: 1.5rem;
   }
 
-  .ascii-art {
-    font-size: 6px;
-    line-height: 1.1;
-    letter-spacing: 2px;
-  }
-
   .title {
     font-size: 2rem;
     margin: 0;
@@ -267,10 +229,6 @@
   @media (max-width: 600px) {
     .title {
       font-size: 1.2rem;
-    }
-
-    .ascii-art {
-      font-size: 4px;
     }
 
     .stats {
