@@ -5,28 +5,28 @@
 
   let searchQuery = $state("")
   let debouncedQuery = $state("")
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   // Debounce search input
   $effect(() => {
-    if (debounceTimer) clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
-      debouncedQuery = searchQuery.trim()
+    const query = searchQuery.trim()
+    const timer = setTimeout(() => {
+      debouncedQuery = query
     }, 300)
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer)
-    }
+    return () => clearTimeout(timer)
   })
 
-  // Search for games
-  const searchResults = useQuery(
-    api.games.search,
-    () => debouncedQuery ? { query: debouncedQuery } : 'skip'
-  )
+  // Search for games - need to read debouncedQuery in a reactive way
+  const getArgs = () => {
+    const q = debouncedQuery
+    return q ? { query: q } : 'skip'
+  }
+
+  const searchResults = useQuery(api.games.search, getArgs)
 
   let isSearching = $derived(searchQuery.trim() !== "" && searchQuery.trim() !== debouncedQuery)
   let hasResults = $derived(searchResults.data && searchResults.data.length > 0)
   let showEmpty = $derived(debouncedQuery && !isSearching && searchResults.data?.length === 0)
+
 </script>
 
 <div class="search-container">
