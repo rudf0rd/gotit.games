@@ -43,29 +43,37 @@
     {/if}
   </div>
 
-  {#if isSearching}
-    <div class="search-status">
-      <span class="loading">SEARCHING...</span>
-    </div>
-  {/if}
-
-  {#if hasResults}
-    <div class="search-results">
-      <div class="result-count">{searchResults.data?.length} GAMES FOUND</div>
-      <div class="results-grid">
-        {#each searchResults.data ?? [] as game (game._id)}
-          <GameCard {game} />
-        {/each}
+  <!-- Results area with consistent min-height to prevent layout jumps -->
+  <div class="results-area">
+    {#if !searchQuery.trim()}
+      <!-- Idle state - show hint -->
+      <div class="idle-state">
+        <p>TYPE TO SEARCH</p>
+        <p class="hint">TRY "STARFIELD" OR "HOLLOW KNIGHT"</p>
       </div>
-    </div>
-  {/if}
-
-  {#if showEmpty}
-    <div class="no-results">
-      <p>NO GAMES FOUND</p>
-      <p class="hint">TRY A DIFFERENT SEARCH</p>
-    </div>
-  {/if}
+    {:else if isSearching || searchResults.isLoading}
+      <!-- Loading state -->
+      <div class="search-status">
+        <span class="loading">SEARCHING...</span>
+      </div>
+    {:else if hasResults}
+      <!-- Results -->
+      <div class="search-results">
+        <div class="result-count">{searchResults.data?.length} GAMES FOUND</div>
+        <div class="results-grid">
+          {#each searchResults.data ?? [] as game (game._id)}
+            <GameCard {game} />
+          {/each}
+        </div>
+      </div>
+    {:else if showEmpty}
+      <!-- No results -->
+      <div class="no-results">
+        <p>NO GAMES FOUND</p>
+        <p class="hint">TRY A DIFFERENT SEARCH</p>
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -121,9 +129,29 @@
     color: var(--primary);
   }
 
-  .search-status {
+  .results-area {
     margin-top: 1rem;
+    min-height: 120px;
+  }
+
+  .idle-state {
     text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+  }
+
+  .idle-state p {
+    margin: 0.5rem 0;
+  }
+
+  .idle-state .hint {
+    font-size: 8px;
+    color: var(--secondary);
+  }
+
+  .search-status {
+    text-align: center;
+    padding: 2rem;
   }
 
   .loading {

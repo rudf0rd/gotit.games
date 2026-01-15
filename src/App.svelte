@@ -3,6 +3,7 @@
   import ConvexAuthBridge from './lib/components/ConvexAuthBridge.svelte'
   import Pong from './lib/components/Pong.svelte'
   import Dashboard from './lib/components/Dashboard.svelte'
+  import Footer from './lib/components/Footer.svelte'
   import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk/client'
 
   // Typing effect for tagline
@@ -25,7 +26,7 @@
   <ConvexAuthBridge>
     <div class="container">
       <header>
-        <div class="logo-small">GOTIT.GAMES</div>
+        <div class="logo-small">got it<span class="logo-dot">.</span>games</div>
         <nav>
           <SignedOut>
             <SignInButton>
@@ -44,7 +45,7 @@
             <Pong />
 
             <h1 class="title">
-              <span class="glow-pink">GOTIT</span><span class="glow-cyan">.GAMES</span>
+              <span class="glow-pink">got it</span><span class="glow-cyan">.games</span>
             </h1>
 
             <p class="tagline">
@@ -78,16 +79,7 @@
           <Dashboard />
         </SignedIn>
 
-        <footer>
-          <div class="stats">
-            <span>HIGH SCORE: $∞ SAVED</span>
-            <span>•</span>
-            <span>PLAYERS: LOADING...</span>
-            <span>•</span>
-            <span>GAMES TRACKED: ████</span>
-          </div>
-          <p class="copyright">© 2025 GOTIT.GAMES • MADE WITH ♥ AND TOO MANY SUBSCRIPTIONS</p>
-        </footer>
+        <Footer />
       </main>
     </div>
   </ConvexAuthBridge>
@@ -112,6 +104,10 @@
     font-size: 10px;
     color: var(--primary);
     text-shadow: 2px 2px 0 var(--purple);
+  }
+
+  .logo-dot {
+    color: var(--secondary);
   }
 
   nav {
@@ -197,40 +193,10 @@
     color: var(--text-dim);
   }
 
-  footer {
-    padding: 1rem 2rem;
-    border-top: 2px solid var(--secondary);
-    text-align: center;
-  }
-
-  .stats {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    font-size: 8px;
-    color: var(--text-dim);
-    margin-bottom: 0.5rem;
-  }
-
-  .copyright {
-    font-size: 6px;
-    color: var(--text-dim);
-    margin: 0;
-  }
-
   /* Mobile adjustments */
   @media (max-width: 600px) {
     .title {
       font-size: 1.2rem;
-    }
-
-    .stats {
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .stats span:nth-child(2) {
-      display: none;
     }
   }
 </style>

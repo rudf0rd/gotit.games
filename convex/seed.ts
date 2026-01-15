@@ -1,7 +1,6 @@
 import { action } from "./_generated/server";
 import { api } from "./_generated/api";
-import type { Doc, Id } from "./_generated/dataModel";
-import type { ActionCtx } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
 
 // Seed sample games into the database via IGDB
 export const seedSampleGames = action({

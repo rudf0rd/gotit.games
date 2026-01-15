@@ -13,6 +13,7 @@ import type * as games from "../games.js";
 import type * as igdb from "../igdb.js";
 import type * as rawg from "../rawg.js";
 import type * as seed from "../seed.js";
+import type * as stats from "../stats.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as sync_gamepass from "../sync/gamepass.js";
 
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   igdb: typeof igdb;
   rawg: typeof rawg;
   seed: typeof seed;
+  stats: typeof stats;
   subscriptions: typeof subscriptions;
   "sync/gamepass": typeof sync_gamepass;
 }>;
