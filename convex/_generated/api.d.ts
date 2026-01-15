@@ -8,13 +8,25 @@
  * @module
  */
 
+import type * as catalog from "../catalog.js";
+import type * as games from "../games.js";
+import type * as rawg from "../rawg.js";
+import type * as subscriptions from "../subscriptions.js";
+import type * as sync_gamepass from "../sync/gamepass.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  catalog: typeof catalog;
+  games: typeof games;
+  rawg: typeof rawg;
+  subscriptions: typeof subscriptions;
+  "sync/gamepass": typeof sync_gamepass;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.

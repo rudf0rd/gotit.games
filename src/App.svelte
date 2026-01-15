@@ -2,6 +2,7 @@
   import ConvexClerkProvider from './lib/components/ConvexClerkProvider.svelte'
   import ConvexAuthBridge from './lib/components/ConvexAuthBridge.svelte'
   import Pong from './lib/components/Pong.svelte'
+  import Dashboard from './lib/components/Dashboard.svelte'
   import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk/client'
 
   // Typing effect for tagline
@@ -38,30 +39,30 @@
       </header>
 
       <main>
-        <div class="hero">
-          <Pong />
+        <SignedOut>
+          <div class="hero">
+            <Pong />
 
-          <h1 class="title">
-            <span class="glow-pink">GOTIT</span><span class="glow-cyan">.GAMES</span>
-          </h1>
+            <h1 class="title">
+              <span class="glow-pink">GOTIT</span><span class="glow-cyan">.GAMES</span>
+            </h1>
 
-          <p class="tagline">
-            {displayText}<span class="blink">_</span>
-          </p>
+            <p class="tagline">
+              {displayText}<span class="blink">_</span>
+            </p>
 
-          <div class="description pixel-border">
-            <p>▶ TRACK YOUR SUBSCRIPTIONS</p>
-            <p class="indent">├─ GAME PASS</p>
-            <p class="indent">├─ PS+ EXTRA</p>
-            <p class="indent">├─ EA PLAY</p>
-            <p class="indent">└─ AND MORE...</p>
-            <br>
-            <p>▶ SEARCH BEFORE YOU BUY</p>
-            <p>▶ LINK YOUR ACCOUNTS</p>
-            <p>▶ <span class="rainbow">SAVE YOUR GOLD</span></p>
-          </div>
+            <div class="description pixel-border">
+              <p>▶ TRACK YOUR SUBSCRIPTIONS</p>
+              <p class="indent">├─ GAME PASS</p>
+              <p class="indent">├─ PS+ EXTRA</p>
+              <p class="indent">├─ EA PLAY</p>
+              <p class="indent">└─ AND MORE...</p>
+              <br>
+              <p>▶ SEARCH BEFORE YOU BUY</p>
+              <p>▶ LINK YOUR ACCOUNTS</p>
+              <p>▶ <span class="rainbow">SAVE YOUR GOLD</span></p>
+            </div>
 
-          <SignedOut>
             <div class="cta">
               <SignInButton>
                 <button class="big-button">
@@ -70,15 +71,12 @@
               </SignInButton>
               <p class="hint">FREE TO PLAY • NO ADS • NO BS</p>
             </div>
-          </SignedOut>
+          </div>
+        </SignedOut>
 
-          <SignedIn>
-            <div class="cta">
-              <p class="status glow-cyan">► PLAYER 1 READY ◄</p>
-              <p class="hint">LOADING GAME LIBRARY...</p>
-            </div>
-          </SignedIn>
-        </div>
+        <SignedIn>
+          <Dashboard />
+        </SignedIn>
 
         <footer>
           <div class="stats">
@@ -197,11 +195,6 @@
   .hint {
     font-size: 8px;
     color: var(--text-dim);
-  }
-
-  .status {
-    font-size: 14px;
-    margin: 0;
   }
 
   footer {
