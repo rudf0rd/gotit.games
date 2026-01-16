@@ -390,45 +390,24 @@ export const setComingByTitle = mutation({
   },
 });
 
-// Seed some leaving/coming soon data for demo
-export const seedLeavingComingSoon = mutation({
+// Reset all leaving/coming soon statuses back to available
+export const resetLeavingComingSoon = mutation({
   args: {},
   handler: async (ctx) => {
-    const now = Date.now();
-    const day = 24 * 60 * 60 * 1000;
+    const entries = await ctx.db.query("catalog_entries").collect();
+    let reset = 0;
 
-    // Get some random games to mark as leaving/coming
-    const allEntries = await ctx.db.query("catalog_entries").collect();
-
-    if (allEntries.length < 20) {
-      return { message: "Not enough entries to seed" };
+    for (const entry of entries) {
+      if (entry.status === "leaving_soon" || entry.status === "coming_soon") {
+        await ctx.db.patch(entry._id, {
+          status: "available",
+          leaving_date: undefined,
+          available_date: undefined,
+        });
+        reset++;
+      }
     }
 
-    // Shuffle and pick some entries
-    const shuffled = allEntries.sort(() => Math.random() - 0.5);
-
-    // Mark first 8 as leaving soon (various dates)
-    const leavingDates = [3, 5, 7, 10, 14, 18, 21, 28];
-    for (let i = 0; i < 8 && i < shuffled.length; i++) {
-      await ctx.db.patch(shuffled[i]._id, {
-        status: "leaving_soon",
-        leaving_date: now + (leavingDates[i] * day),
-      });
-    }
-
-    // Mark next 8 as coming soon (various dates)
-    const comingDates = [2, 5, 8, 12, 15, 20, 25, 30];
-    for (let i = 8; i < 16 && i < shuffled.length; i++) {
-      await ctx.db.patch(shuffled[i]._id, {
-        status: "coming_soon",
-        available_date: now + (comingDates[i - 8] * day),
-      });
-    }
-
-    return {
-      message: "Seeded leaving/coming soon data",
-      leaving: 8,
-      coming: 8,
-    };
+    return { reset };
   },
 });
