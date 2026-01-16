@@ -145,8 +145,19 @@
   }
 
   .logo-img {
-    height: 56px;
+    height: 80px;
     width: auto;
+    transform: rotate(-8deg);
+    margin: -10px 0 -20px -10px;
+    filter: drop-shadow(0 0 8px rgba(5, 217, 232, 0.6)) drop-shadow(0 0 20px rgba(255, 42, 109, 0.4));
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo-img:hover {
+    transform: rotate(-4deg) scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(5, 217, 232, 0.8)) drop-shadow(0 0 30px rgba(255, 42, 109, 0.6));
   }
 
   nav {
