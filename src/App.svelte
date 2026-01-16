@@ -34,7 +34,7 @@
         <div class="logo-small">got it<span class="logo-dot">.</span>games</div>
         <nav>
           <SignedOut>
-            <SignInButton>
+            <SignInButton mode="modal">
               <button>INSERT COIN</button>
             </SignInButton>
           </SignedOut>
@@ -106,7 +106,7 @@
                 </div>
 
                 <div class="cta">
-                  <SignInButton>
+                  <SignInButton mode="modal">
                     <button class="big-button">
                       ▶ START GAME ◀
                     </button>
