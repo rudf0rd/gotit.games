@@ -145,7 +145,7 @@
   }
 
   .logo-img {
-    height: 32px;
+    height: 56px;
     width: auto;
   }
 
