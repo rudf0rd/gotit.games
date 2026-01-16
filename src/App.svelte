@@ -210,20 +210,21 @@
   }
 
   .big-button {
-    font-size: 14px;
-    padding: 16px 32px;
-    background: linear-gradient(180deg, var(--primary) 0%, #c4214f 100%);
-    border: 3px solid var(--accent);
-    color: white;
+    font-size: 12px;
+    padding: 14px 28px;
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
     animation: pulse 2s ease-in-out infinite;
   }
 
   .big-button:hover {
-    background: linear-gradient(180deg, #ff4d8d 0%, var(--primary) 100%);
+    background: rgba(255, 42, 109, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
     box-shadow:
-      0 0 20px var(--primary),
-      0 0 40px var(--primary),
-      0 0 60px var(--primary);
+      0 0 15px var(--primary),
+      0 0 30px var(--primary);
   }
 
   @keyframes pulse {
