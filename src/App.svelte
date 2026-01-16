@@ -140,15 +140,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+    padding: 0.5rem 2rem;
     border-bottom: 2px solid var(--secondary);
+    overflow: visible;
   }
 
   .logo-img {
-    height: 80px;
+    height: 72px;
     width: auto;
     transform: rotate(-8deg);
-    margin: -10px 0 -20px -10px;
+    margin: -15px 0 -25px -10px;
     filter: drop-shadow(0 0 8px rgba(5, 217, 232, 0.6)) drop-shadow(0 0 20px rgba(255, 42, 109, 0.4));
     transition: all 0.3s ease;
     position: relative;
