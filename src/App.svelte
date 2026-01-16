@@ -5,6 +5,7 @@
   import Dashboard from './lib/components/Dashboard.svelte'
   import Footer from './lib/components/Footer.svelte'
   import { SignedIn, SignedOut, SignInButton, UserButton, ClerkLoading, ClerkLoaded } from 'svelte-clerk/client'
+  import logoImg from './assets/logo.png'
 
   // Dev mode bypass - show dashboard without auth for testing
   // SAFE: import.meta.env.DEV is false in production builds (Vite replaces at build time)
@@ -31,7 +32,7 @@
   <ConvexAuthBridge>
     <div class="container">
       <header>
-        <div class="logo-small">got it<span class="logo-dot">.</span>games</div>
+        <img src={logoImg} alt="Got It Games" class="logo-img" />
         <nav>
           <SignedOut>
             <SignInButton mode="modal">
@@ -143,14 +144,9 @@
     border-bottom: 2px solid var(--secondary);
   }
 
-  .logo-small {
-    font-size: 10px;
-    color: var(--primary);
-    text-shadow: 2px 2px 0 var(--purple);
-  }
-
-  .logo-dot {
-    color: var(--secondary);
+  .logo-img {
+    height: 32px;
+    width: auto;
   }
 
   nav {
