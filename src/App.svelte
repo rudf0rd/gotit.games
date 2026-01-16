@@ -4,7 +4,8 @@
   import Pong from './lib/components/Pong.svelte'
   import Dashboard from './lib/components/Dashboard.svelte'
   import Footer from './lib/components/Footer.svelte'
-  import { SignedIn, SignedOut, SignInButton, UserButton, ClerkLoading, ClerkLoaded } from 'svelte-clerk/client'
+  import { SignedIn, SignedOut, SignInButton, ClerkLoading, ClerkLoaded } from 'svelte-clerk/client'
+  import ArcadeHeader from './lib/components/ArcadeHeader.svelte'
   import logoImg from './assets/logo.png'
 
   // Dev mode bypass - show dashboard without auth for testing
@@ -31,19 +32,7 @@
 <ConvexClerkProvider>
   <ConvexAuthBridge>
     <div class="container">
-      <header>
-        <img src={logoImg} alt="Got It Games" class="logo-img" />
-        <nav>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button>INSERT COIN</button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-        </nav>
-      </header>
+      <ArcadeHeader />
 
       <main>
         {#if DEV_BYPASS_AUTH}
@@ -136,36 +125,7 @@
     flex-direction: column;
   }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 2rem;
-    border-bottom: 2px solid var(--secondary);
-    overflow: visible;
-  }
-
-  .logo-img {
-    height: 72px;
-    width: auto;
-    transform: rotate(-8deg);
-    margin: -15px 0 -25px -10px;
-    filter: drop-shadow(0 0 8px rgba(5, 217, 232, 0.6)) drop-shadow(0 0 20px rgba(255, 42, 109, 0.4));
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 10;
-  }
-
-  .logo-img:hover {
-    transform: rotate(-4deg) scale(1.1);
-    filter: drop-shadow(0 0 12px rgba(5, 217, 232, 0.8)) drop-shadow(0 0 30px rgba(255, 42, 109, 0.6));
-  }
-
-  nav {
-    display: flex;
-    gap: 1rem;
-  }
-
+  
   main {
     flex: 1;
     display: flex;

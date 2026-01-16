@@ -44,19 +44,6 @@
 </script>
 
 <div class="dashboard">
-  <div class="dashboard-header">
-    <div class="welcome">
-      <h1>PLAYER 1</h1>
-      <p class="subtitle">
-        {#if subCount > 0}
-          {totalGames} GAMES AVAILABLE
-        {:else}
-          SELECT YOUR SUBSCRIPTIONS
-        {/if}
-      </p>
-    </div>
-  </div>
-
   <div class="dashboard-grid">
     <aside class="sidebar">
       <SubscriptionPicker />
@@ -121,26 +108,6 @@
     min-height: 100%;
     padding: 1rem;
     gap: 1rem;
-  }
-
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--secondary);
-  }
-
-  .welcome h1 {
-    font-size: 14px;
-    margin: 0;
-    color: var(--primary);
-  }
-
-  .subtitle {
-    font-size: 8px;
-    color: var(--secondary);
-    margin: 0.5rem 0 0 0;
   }
 
   .dashboard-grid {
