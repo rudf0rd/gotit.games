@@ -2,12 +2,24 @@
   import { useQuery } from 'convex-svelte'
   import { api } from '../../../convex/_generated/api'
   import { useClerkContext } from 'svelte-clerk/client'
+  import type { Id } from '../../../convex/_generated/dataModel'
+
+  interface Props {
+    onGameClick?: (gameId: Id<"games">) => void
+  }
+
+  let { onGameClick }: Props = $props()
 
   const clerk = useClerkContext()
 
+  // In dev mode without auth, show all coming soon games
+  // With auth, filter by user's subscriptions
   const comingSoon = useQuery(
     api.catalog.getComingSoon,
-    () => clerk.user?.id ? { user_id: clerk.user.id, limit: 5 } : 'skip'
+    () => {
+      const userId = clerk.user?.id
+      return { user_id: userId, limit: 5 }
+    }
   )
 
   function formatArrival(timestamp: number | undefined): string {
@@ -32,7 +44,10 @@
 <div class="coming-list">
   {#if comingSoon.data && comingSoon.data.length > 0}
     {#each comingSoon.data as entry (entry._id)}
-      <div class="coming-item">
+      <button
+        class="coming-item"
+        onclick={() => entry.game_id && onGameClick?.(entry.game_id)}
+      >
         <div class="game-cover">
           {#if entry.game?.cover_url}
             <img src={entry.game.cover_url} alt={entry.game?.title ?? 'Game'} />
@@ -46,11 +61,20 @@
             <span class="arrival-date">{formatArrival(entry.available_date)}</span>
             <span class="time-until">{formatDaysUntil(entry.available_date)}</span>
           </div>
-          <div class="service-tag" style="background: {entry.subscription?.color ?? 'var(--secondary)'}">
-            {entry.subscription?.name ?? ''}
+          <div class="service-row">
+            <div class="service-tag" style="background: {entry.subscription?.color ?? 'var(--secondary)'}">
+              {entry.subscription?.name ?? ''}
+            </div>
+            {#if entry.platforms && entry.platforms.length > 0}
+              <div class="platforms">
+                {#each entry.platforms as platform}
+                  <span class="platform-tag">{platform.toUpperCase()}</span>
+                {/each}
+              </div>
+            {/if}
           </div>
         </div>
-      </div>
+      </button>
     {/each}
   {:else if comingSoon.data?.length === 0}
     <div class="empty">
@@ -74,7 +98,17 @@
     gap: 0.75rem;
     padding: 0.5rem;
     background: rgba(0, 255, 255, 0.1);
+    border: none;
     border-left: 3px solid var(--secondary);
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .coming-item:hover {
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 var(--secondary);
   }
 
   .game-cover {
@@ -133,12 +167,30 @@
     color: var(--accent);
   }
 
+  .service-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+  }
+
   .service-tag {
     font-size: 5px;
     padding: 2px 4px;
     color: white;
-    align-self: flex-start;
-    margin-top: auto;
+  }
+
+  .platforms {
+    display: flex;
+    gap: 3px;
+  }
+
+  .platform-tag {
+    font-size: 5px;
+    padding: 1px 3px;
+    background: var(--bg);
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
   }
 
   .empty {

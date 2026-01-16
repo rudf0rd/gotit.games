@@ -79,7 +79,7 @@ export const checkAvailability = query({
   },
 });
 
-// Get games leaving soon
+// Get games leaving soon (aggregated by game + subscription)
 export const getLeavingSoon = query({
   args: {
     user_id: v.optional(v.string()),
@@ -110,22 +110,35 @@ export const getLeavingSoon = query({
       entries = entries.filter((e) => userSubIds.includes(e.subscription_id));
     }
 
-    // Sort by leaving date (soonest first)
-    entries.sort((a, b) => (a.leaving_date ?? 0) - (b.leaving_date ?? 0));
-    entries = entries.slice(0, limit);
+    // Group by game_id + subscription_id and aggregate platforms
+    const grouped = new Map<string, { entry: typeof entries[0]; platforms: string[] }>();
+    for (const entry of entries) {
+      const key = `${entry.game_id}-${entry.subscription_id}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.platforms.push(entry.platform);
+      } else {
+        grouped.set(key, { entry, platforms: [entry.platform] });
+      }
+    }
+
+    // Convert to array and sort by leaving date (soonest first)
+    let groupedEntries = Array.from(grouped.values());
+    groupedEntries.sort((a, b) => (a.entry.leaving_date ?? 0) - (b.entry.leaving_date ?? 0));
+    groupedEntries = groupedEntries.slice(0, limit);
 
     // Enrich with game and subscription data
     return await Promise.all(
-      entries.map(async (entry) => {
+      groupedEntries.map(async ({ entry, platforms }) => {
         const game = await ctx.db.get(entry.game_id);
         const subscription = await ctx.db.get(entry.subscription_id);
-        return { ...entry, game, subscription };
+        return { ...entry, game, subscription, platforms };
       })
     );
   },
 });
 
-// Get games coming soon
+// Get games coming soon (aggregated by game + subscription)
 export const getComingSoon = query({
   args: {
     user_id: v.optional(v.string()),
@@ -156,16 +169,29 @@ export const getComingSoon = query({
       entries = entries.filter((e) => userSubIds.includes(e.subscription_id));
     }
 
-    // Sort by available date (soonest first)
-    entries.sort((a, b) => (a.available_date ?? 0) - (b.available_date ?? 0));
-    entries = entries.slice(0, limit);
+    // Group by game_id + subscription_id and aggregate platforms
+    const grouped = new Map<string, { entry: typeof entries[0]; platforms: string[] }>();
+    for (const entry of entries) {
+      const key = `${entry.game_id}-${entry.subscription_id}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.platforms.push(entry.platform);
+      } else {
+        grouped.set(key, { entry, platforms: [entry.platform] });
+      }
+    }
+
+    // Convert to array and sort by available date (soonest first)
+    let groupedEntries = Array.from(grouped.values());
+    groupedEntries.sort((a, b) => (a.entry.available_date ?? 0) - (b.entry.available_date ?? 0));
+    groupedEntries = groupedEntries.slice(0, limit);
 
     // Enrich with game and subscription data
     return await Promise.all(
-      entries.map(async (entry) => {
+      groupedEntries.map(async ({ entry, platforms }) => {
         const game = await ctx.db.get(entry.game_id);
         const subscription = await ctx.db.get(entry.subscription_id);
-        return { ...entry, game, subscription };
+        return { ...entry, game, subscription, platforms };
       })
     );
   },
@@ -250,5 +276,16 @@ export const removeEntry = mutation({
   args: { id: v.id("catalog_entries") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+// Get all catalog entries for a subscription
+export const getEntriesBySubscription = query({
+  args: { subscription_id: v.id("subscriptions") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("catalog_entries")
+      .withIndex("by_subscription", (q) => q.eq("subscription_id", args.subscription_id))
+      .collect();
   },
 });

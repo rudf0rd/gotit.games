@@ -6,9 +6,10 @@
 
   interface Props {
     game: Doc<"games">
+    onClick?: (gameId: Doc<"games">["_id"]) => void
   }
 
-  let { game }: Props = $props()
+  let { game, onClick }: Props = $props()
   const clerk = useClerkContext()
 
   // Check availability for this game
@@ -24,7 +25,7 @@
   let inUserSubs = $derived(availability.data?.inUserSubs ?? false)
 </script>
 
-<div class="game-card" class:available={inUserSubs} class:not-available={!inUserSubs && isAvailable}>
+<button class="game-card" class:available={inUserSubs} class:not-available={!inUserSubs && isAvailable} onclick={() => onClick?.(game._id)}>
   <div class="cover">
     {#if game.cover_url}
       <img src={game.cover_url} alt={game.title} loading="lazy" />
@@ -65,7 +66,7 @@
       <p class="not-tracked">NOT IN ANY SERVICE</p>
     {/if}
   </div>
-</div>
+</button>
 
 <style>
   .game-card {
@@ -73,6 +74,10 @@
     border: 2px solid var(--secondary);
     overflow: hidden;
     transition: all 0.2s ease;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    width: 100%;
   }
 
   .game-card:hover {

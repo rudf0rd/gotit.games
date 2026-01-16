@@ -4,7 +4,12 @@
   import Pong from './lib/components/Pong.svelte'
   import Dashboard from './lib/components/Dashboard.svelte'
   import Footer from './lib/components/Footer.svelte'
-  import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk/client'
+  import { SignedIn, SignedOut, SignInButton, UserButton, ClerkLoading, ClerkLoaded } from 'svelte-clerk/client'
+
+  // Dev mode bypass - show dashboard without auth for testing
+  // SAFE: import.meta.env.DEV is false in production builds (Vite replaces at build time)
+  // Toggle the `&& true` to `&& false` to test normal auth flow locally
+  const DEV_BYPASS_AUTH = import.meta.env.DEV && true
 
   // Typing effect for tagline
   const fullText = "NEVER BUY A GAME YOU ALREADY OWN"
@@ -40,44 +45,82 @@
       </header>
 
       <main>
-        <SignedOut>
-          <div class="hero">
-            <Pong />
-
-            <h1 class="title">
-              <span class="glow-pink">got it</span><span class="glow-cyan">.games</span>
-            </h1>
-
-            <p class="tagline">
-              {displayText}<span class="blink">_</span>
-            </p>
-
-            <div class="description pixel-border">
-              <p>▶ TRACK YOUR SUBSCRIPTIONS</p>
-              <p class="indent">├─ GAME PASS</p>
-              <p class="indent">├─ PS+ EXTRA</p>
-              <p class="indent">├─ EA PLAY</p>
-              <p class="indent">└─ AND MORE...</p>
-              <br>
-              <p>▶ SEARCH BEFORE YOU BUY</p>
-              <p>▶ LINK YOUR ACCOUNTS</p>
-              <p>▶ <span class="rainbow">SAVE YOUR GOLD</span></p>
-            </div>
-
-            <div class="cta">
-              <SignInButton>
-                <button class="big-button">
-                  ▶ START GAME ◀
-                </button>
-              </SignInButton>
-              <p class="hint">FREE TO PLAY • NO ADS • NO BS</p>
-            </div>
-          </div>
-        </SignedOut>
-
-        <SignedIn>
+        {#if DEV_BYPASS_AUTH}
+          <!-- Dev mode: show dashboard without auth -->
           <Dashboard />
-        </SignedIn>
+        {:else}
+          <!-- Show hero while Clerk is loading -->
+          <ClerkLoading>
+            <div class="hero">
+              <Pong />
+
+              <h1 class="title">
+                <span class="glow-pink">got it</span><span class="glow-cyan">.games</span>
+              </h1>
+
+              <p class="tagline">
+                {displayText}<span class="blink">_</span>
+              </p>
+
+              <div class="description pixel-border">
+                <p>▶ TRACK YOUR SUBSCRIPTIONS</p>
+                <p class="indent">├─ GAME PASS</p>
+                <p class="indent">├─ PS+ EXTRA</p>
+                <p class="indent">├─ EA PLAY</p>
+                <p class="indent">└─ AND MORE...</p>
+                <br>
+                <p>▶ SEARCH BEFORE YOU BUY</p>
+                <p>▶ LINK YOUR ACCOUNTS</p>
+                <p>▶ <span class="rainbow">SAVE YOUR GOLD</span></p>
+              </div>
+
+              <div class="cta">
+                <p class="loading-text">LOADING...</p>
+              </div>
+            </div>
+          </ClerkLoading>
+
+          <ClerkLoaded>
+            <SignedOut>
+              <div class="hero">
+                <Pong />
+
+                <h1 class="title">
+                  <span class="glow-pink">got it</span><span class="glow-cyan">.games</span>
+                </h1>
+
+                <p class="tagline">
+                  {displayText}<span class="blink">_</span>
+                </p>
+
+                <div class="description pixel-border">
+                  <p>▶ TRACK YOUR SUBSCRIPTIONS</p>
+                  <p class="indent">├─ GAME PASS</p>
+                  <p class="indent">├─ PS+ EXTRA</p>
+                  <p class="indent">├─ EA PLAY</p>
+                  <p class="indent">└─ AND MORE...</p>
+                  <br>
+                  <p>▶ SEARCH BEFORE YOU BUY</p>
+                  <p>▶ LINK YOUR ACCOUNTS</p>
+                  <p>▶ <span class="rainbow">SAVE YOUR GOLD</span></p>
+                </div>
+
+                <div class="cta">
+                  <SignInButton>
+                    <button class="big-button">
+                      ▶ START GAME ◀
+                    </button>
+                  </SignInButton>
+                  <p class="hint">FREE TO PLAY • NO ADS • NO BS</p>
+                </div>
+              </div>
+            </SignedOut>
+
+            <SignedIn>
+              <Dashboard />
+            </SignedIn>
+          </ClerkLoaded>
+        {/if}
 
         <Footer />
       </main>
@@ -191,6 +234,17 @@
   .hint {
     font-size: 8px;
     color: var(--text-dim);
+  }
+
+  .loading-text {
+    font-size: 10px;
+    color: var(--secondary);
+    animation: blink-anim 1s infinite;
+  }
+
+  @keyframes blink-anim {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
   }
 
   /* Mobile adjustments */

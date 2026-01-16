@@ -1,7 +1,10 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query, action } from "./_generated/server";
+import { api } from "./_generated/api";
+import MiniSearch from "minisearch";
+import type { Doc } from "./_generated/dataModel";
 
-// Search games by title (fuzzy search)
+// Search games by title (legacy Convex full-text search)
 export const search = query({
   args: { query: v.string() },
   handler: async (ctx, args) => {
@@ -15,6 +18,67 @@ export const search = query({
       .take(20);
 
     return results;
+  },
+});
+
+// Fuzzy search games using MiniSearch (better relevance)
+export const fuzzySearch = action({
+  args: { query: v.string(), limit: v.optional(v.number()) },
+  handler: async (ctx, args): Promise<Doc<"games">[]> => {
+    const query = args.query.trim();
+    const limit = args.limit ?? 20;
+
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    // Fetch all games from the database
+    const allGames: Doc<"games">[] = await ctx.runQuery(api.games.listAll, {});
+
+    if (!allGames || allGames.length === 0) {
+      return [];
+    }
+
+    // Build MiniSearch index
+    const miniSearch = new MiniSearch({
+      fields: ["title"], // Fields to index for search
+      storeFields: ["_id"], // We only need ID to look up full game
+      searchOptions: {
+        boost: { title: 2 },
+        fuzzy: 0.2, // Fuzzy matching threshold
+        prefix: true, // Enable prefix search
+      },
+    });
+
+    // Add documents with their Convex ID
+    miniSearch.addAll(
+      allGames.map((game) => ({
+        id: game._id,
+        title: game.title,
+        _id: game._id,
+      }))
+    );
+
+    // Search
+    const results = miniSearch.search(query, {
+      fuzzy: 0.2,
+      prefix: true,
+      combineWith: "AND", // All terms must match (helps with "God of War")
+    });
+
+    // Return top results as full game documents
+    return results.slice(0, limit).map((result) => {
+      const game = allGames.find((g) => g._id === result.id);
+      return game!;
+    }).filter(Boolean);
+  },
+});
+
+// List all games (for MiniSearch indexing)
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("games").collect();
   },
 });
 

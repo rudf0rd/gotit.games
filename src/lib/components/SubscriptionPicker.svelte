@@ -16,6 +16,12 @@
     () => clerk.user?.id ? { user_id: clerk.user.id } : 'skip'
   )
 
+  // Count games available to user
+  const gameCount = useQuery(
+    api.catalog.countAvailableGames,
+    () => clerk.user?.id ? { user_id: clerk.user.id } : 'skip'
+  )
+
   // Track which subs the user has
   let userSubMap = $derived(new Map(
     (userSubs.data ?? []).map(us => [us.subscription_id, us.tier_slug])
@@ -85,6 +91,16 @@
           {/if}
         </div>
       {/each}
+    </div>
+
+    <div class="game-count">
+      {#if gameCount.data !== undefined && gameCount.data > 0}
+        <span class="count">{gameCount.data}</span> games available
+      {:else if userSubMap.size === 0}
+        <span class="hint">Select services above</span>
+      {:else}
+        <span class="count">0</span> games available
+      {/if}
     </div>
   {:else}
     <p class="loading">LOADING...</p>
@@ -176,5 +192,23 @@
     font-size: 8px;
     color: var(--text-dim);
     text-align: center;
+  }
+
+  .game-count {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--secondary);
+    font-size: 8px;
+    color: var(--text-dim);
+  }
+
+  .game-count .count {
+    color: var(--primary);
+    font-weight: bold;
+  }
+
+  .game-count .hint {
+    font-style: italic;
+    opacity: 0.7;
   }
 </style>

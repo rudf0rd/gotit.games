@@ -167,16 +167,28 @@ export const importGame = action({
 });
 
 // Search by title and import first result
+// Tries exact match first, then falls back to fuzzy search
 export const searchAndImport = action({
   args: { title: v.string() },
   returns: v.union(v.id("games"), v.null()),
   handler: async (ctx, args): Promise<Id<"games"> | null> => {
-    const games = await igdbRequest(
+    // First try exact name match (case-insensitive)
+    let games = await igdbRequest(
       "/games",
-      `search "${args.title}";
+      `where name ~ "${args.title}";
        fields name, slug, cover.url, first_release_date, platforms.name, summary;
        limit 1;`
     ) as IgdbGame[];
+
+    // Fall back to fuzzy search if no exact match
+    if (games.length === 0) {
+      games = await igdbRequest(
+        "/games",
+        `search "${args.title}";
+         fields name, slug, cover.url, first_release_date, platforms.name, summary;
+         limit 1;`
+      ) as IgdbGame[];
+    }
 
     if (games.length === 0) {
       return null;

@@ -2,12 +2,24 @@
   import { useQuery } from 'convex-svelte'
   import { api } from '../../../convex/_generated/api'
   import { useClerkContext } from 'svelte-clerk/client'
+  import type { Id } from '../../../convex/_generated/dataModel'
+
+  interface Props {
+    onGameClick?: (gameId: Id<"games">) => void
+  }
+
+  let { onGameClick }: Props = $props()
 
   const clerk = useClerkContext()
 
+  // In dev mode without auth, show all leaving soon games
+  // With auth, filter by user's subscriptions
   const leavingSoon = useQuery(
     api.catalog.getLeavingSoon,
-    () => clerk.user?.id ? { user_id: clerk.user.id, limit: 5 } : 'skip'
+    () => {
+      const userId = clerk.user?.id
+      return { user_id: userId, limit: 5 }
+    }
   )
 
   function formatDaysLeft(timestamp: number | undefined): string {
@@ -38,7 +50,10 @@
 <div class="leaving-list">
   {#if leavingSoon.data && leavingSoon.data.length > 0}
     {#each leavingSoon.data as entry (entry._id)}
-      <div class="leaving-item {getUrgencyClass(entry.leaving_date)}">
+      <button
+        class="leaving-item {getUrgencyClass(entry.leaving_date)}"
+        onclick={() => entry.game_id && onGameClick?.(entry.game_id)}
+      >
         <div class="game-cover">
           {#if entry.game?.cover_url}
             <img src={entry.game.cover_url} alt={entry.game?.title ?? 'Game'} />
@@ -54,6 +69,13 @@
               {entry.subscription?.name ?? ''}
             </span>
           </div>
+          {#if entry.platforms && entry.platforms.length > 0}
+            <div class="platforms">
+              {#each entry.platforms as platform}
+                <span class="platform-tag">{platform.toUpperCase()}</span>
+              {/each}
+            </div>
+          {/if}
           <div class="health-bar">
             <div
               class="health-fill"
@@ -61,7 +83,7 @@
             ></div>
           </div>
         </div>
-      </div>
+      </button>
     {/each}
   {:else if leavingSoon.data?.length === 0}
     <div class="empty">
@@ -85,7 +107,17 @@
     gap: 0.75rem;
     padding: 0.5rem;
     background: rgba(255, 56, 100, 0.1);
+    border: none;
     border-left: 3px solid var(--primary);
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .leaving-item:hover {
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 var(--primary);
   }
 
   .leaving-item.urgent {
@@ -156,6 +188,20 @@
 
   .service {
     opacity: 0.8;
+  }
+
+  .platforms {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .platform-tag {
+    font-size: 5px;
+    padding: 1px 3px;
+    background: var(--bg);
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
   }
 
   .health-bar {

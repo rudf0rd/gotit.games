@@ -210,20 +210,34 @@ pre {
   100% { color: var(--primary); }
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--bg-dark);
+  border: 1px solid var(--secondary);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--secondary);
-  border: 1px solid var(--bg-dark);
+  border: 2px solid var(--bg-dark);
+  box-shadow: 0 0 8px var(--secondary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-dark);
+}
+
+/* Scrollbar styling - Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary) var(--bg-dark);
 }

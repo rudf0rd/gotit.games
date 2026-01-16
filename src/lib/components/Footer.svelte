@@ -11,7 +11,7 @@
     <span>•</span>
     <span>PLAYERS: {stats.data?.players ?? '...'}</span>
     <span>•</span>
-    <span>GAMES TRACKED: {stats.data?.gamesTracked ?? '...'}</span>
+    <span>GAMES SEARCHED: {stats.data?.gamesTracked ?? '...'}</span>
   </div>
   <p class="copyright">© 2025 got it.games • MADE WITH ♥ AND TOO MANY SUBSCRIPTIONS</p>
 </footer>

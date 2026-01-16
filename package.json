@@ -8,11 +8,14 @@
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.app.json",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "convex": "^1.31.4",
     "convex-svelte": "^0.0.12",
+    "minisearch": "^7.2.0",
     "svelte": "^5.46.3",
     "svelte-clerk": "^0.20.3"
   },
@@ -26,6 +29,7 @@
     "svelte-check": "^4.3.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^4.0.17"
   }
 }
