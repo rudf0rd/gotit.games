@@ -289,3 +289,146 @@ export const getEntriesBySubscription = query({
       .collect();
   },
 });
+
+// Set leaving date on entries by game title (partial match)
+export const setLeavingByTitle = mutation({
+  args: {
+    title_contains: v.string(),
+    leaving_date: v.number(),
+    subscription_slug: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Find games matching title
+    const allGames = await ctx.db.query("games").collect();
+    const matchingGames = allGames.filter(g =>
+      g.title.toLowerCase().includes(args.title_contains.toLowerCase())
+    );
+
+    if (matchingGames.length === 0) {
+      return { updated: 0, message: `No games found matching "${args.title_contains}"` };
+    }
+
+    // Get subscription if specified
+    let subId: Id<"subscriptions"> | null = null;
+    if (args.subscription_slug) {
+      const slug = args.subscription_slug;
+      const sub = await ctx.db
+        .query("subscriptions")
+        .withIndex("by_slug", q => q.eq("slug", slug))
+        .first();
+      subId = sub?._id ?? null;
+    }
+
+    let updated = 0;
+    for (const game of matchingGames) {
+      const entries = await ctx.db
+        .query("catalog_entries")
+        .withIndex("by_game", q => q.eq("game_id", game._id))
+        .collect();
+
+      for (const entry of entries) {
+        if (subId && entry.subscription_id !== subId) continue;
+        await ctx.db.patch(entry._id, {
+          status: "leaving_soon",
+          leaving_date: args.leaving_date,
+        });
+        updated++;
+      }
+    }
+
+    return { updated, games: matchingGames.map(g => g.title) };
+  },
+});
+
+// Set coming soon date on entries by game title
+export const setComingByTitle = mutation({
+  args: {
+    title_contains: v.string(),
+    available_date: v.number(),
+    subscription_slug: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Find games matching title
+    const allGames = await ctx.db.query("games").collect();
+    const matchingGames = allGames.filter(g =>
+      g.title.toLowerCase().includes(args.title_contains.toLowerCase())
+    );
+
+    if (matchingGames.length === 0) {
+      return { updated: 0, message: `No games found matching "${args.title_contains}"` };
+    }
+
+    // Get subscription if specified
+    let subId: Id<"subscriptions"> | null = null;
+    if (args.subscription_slug) {
+      const slug = args.subscription_slug;
+      const sub = await ctx.db
+        .query("subscriptions")
+        .withIndex("by_slug", q => q.eq("slug", slug))
+        .first();
+      subId = sub?._id ?? null;
+    }
+
+    let updated = 0;
+    for (const game of matchingGames) {
+      const entries = await ctx.db
+        .query("catalog_entries")
+        .withIndex("by_game", q => q.eq("game_id", game._id))
+        .collect();
+
+      for (const entry of entries) {
+        if (subId && entry.subscription_id !== subId) continue;
+        await ctx.db.patch(entry._id, {
+          status: "coming_soon",
+          available_date: args.available_date,
+        });
+        updated++;
+      }
+    }
+
+    return { updated, games: matchingGames.map(g => g.title) };
+  },
+});
+
+// Seed some leaving/coming soon data for demo
+export const seedLeavingComingSoon = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+
+    // Get some random games to mark as leaving/coming
+    const allEntries = await ctx.db.query("catalog_entries").collect();
+
+    if (allEntries.length < 20) {
+      return { message: "Not enough entries to seed" };
+    }
+
+    // Shuffle and pick some entries
+    const shuffled = allEntries.sort(() => Math.random() - 0.5);
+
+    // Mark first 8 as leaving soon (various dates)
+    const leavingDates = [3, 5, 7, 10, 14, 18, 21, 28];
+    for (let i = 0; i < 8 && i < shuffled.length; i++) {
+      await ctx.db.patch(shuffled[i]._id, {
+        status: "leaving_soon",
+        leaving_date: now + (leavingDates[i] * day),
+      });
+    }
+
+    // Mark next 8 as coming soon (various dates)
+    const comingDates = [2, 5, 8, 12, 15, 20, 25, 30];
+    for (let i = 8; i < 16 && i < shuffled.length; i++) {
+      await ctx.db.patch(shuffled[i]._id, {
+        status: "coming_soon",
+        available_date: now + (comingDates[i - 8] * day),
+      });
+    }
+
+    return {
+      message: "Seeded leaving/coming soon data",
+      leaving: 8,
+      coming: 8,
+    };
+  },
+});
